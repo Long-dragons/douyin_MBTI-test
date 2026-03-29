@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>抖音爆款｜MBTI恋爱CP测试</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"微软雅黑",sans-serif;}
+        body{
+            background: linear-gradient(145deg,#fef4f8,#e8f0ff);
+            padding:12px;
+            max-width:100%;
+            min-height:100vh;
+        }
+        .top-banner{
+            background:linear-gradient(90deg,#ff6b9d,#845ec2);
+            color:#fff;
+            text-align:center;
+            padding:16px;
+            border-radius:16px;
+            font-size:18px;
+            font-weight:bold;
+            margin-bottom:20px;
+            box-shadow:0 4px 12px rgba(132,94,194,0.25);
+        }
+        h1{
+            font-size:24px;
+            text-align:center;
+            color:#4a2e70;
+            margin:10px 0;
+        }
+        .tip{
+            text-align:center;
+            color:#777;
+            font-size:15px;
+            margin-bottom:25px;
+        }
+        .q-card{
+            background:#fff;
+            border-radius:20px;
+            padding:18px;
+            margin:14px 0;
+            box-shadow:0 3px 15px rgba(132,94,194,0.12);
+        }
+        .q-text{
+            font-size:16px;
+            color:#333;
+            line-height:1.7;
+            margin-bottom:15px;
+        }
+        .opt-item{
+            margin:10px 0;
+            padding:14px;
+            border-radius:12px;
+            background:#f9f4fb;
+            font-size:17px;
+            cursor:pointer;
+            transition:0.25s;
+        }
+        .opt-item:active{
+            background:#e8dcf5;
+            transform:scale(0.98);
+        }
+        input[type="radio"]{
+            transform:scale(1.2);
+            margin-right:12px;
+        }
+        .submit-btn{
+            width:100%;
+            padding:18px;
+            background:linear-gradient(90deg,#ff6b9d,#845ec2);
+            color:#fff;
+            border:none;
+            border-radius:16px;
+            font-size:20px;
+            font-weight:bold;
+            margin:30px 0;
+            box-shadow:0 4px 15px rgba(255,107,157,0.3);
+        }
+        .result-box{
+            background:#fff;
+            border-radius:20px;
+            padding:25px;
+            display:none;
+            margin-top:20px;
+            box-shadow:0 4px 20px rgba(132,94,194,0.15);
+        }
+        .result-type{
+            font-size:38px;
+            font-weight:bold;
+            color:#845ec2;
+            text-align:center;
+            margin-bottom:10px;
+        }
+        .cp-title{
+            font-size:22px;
+            color:#ff477e;
+            text-align:center;
+            margin:20px 0 10px;
+            font-weight:bold;
+        }
+        .cp-text{
+            background:#fff0f6;
+            padding:18px;
+            border-radius:14px;
+            line-height:2;
+            font-size:16px;
+            color:#c03560;
+        }
+        .result-desc{
+            background:#f5f0fc;
+            padding:18px;
+            border-radius:14px;
+            line-height:2;
+            margin-top:15px;
+            font-size:16px;
+            color:#553b75;
+        }
+        .progress{
+            position:fixed;
+            top:0;left:0;
+            height:5px;
+            background:linear-gradient(90deg,#ff6b9d,#845ec2);
+            width:0%;
+            z-index:999;
+        }
+    </style>
+</head>
+<body>
+<div class="progress" id="progressBar"></div>
+
+<div class="top-banner">🔥抖音超火｜36题MBTI+专属恋爱CP配对</div>
+<h1>测你的人格 & 天赐良缘</h1>
+<p class="tip">凭第一直觉选择｜截图结果发朋友圈超甜✨</p>
+
+<div id="testContainer"></div>
+<button class="submit-btn" onclick="calcMBTI()">💘一键查看我的CP缘分</button>
+
+<div class="result-box" id="resultBox">
+    <div class="result-type" id="mbtiType"></div>
+    <div class="cp-title">💖你的专属恋爱CP</div>
+    <div class="cp-text" id="cpInfo"></div>
+    <div class="result-desc" id="mbtiDesc"></div>
+</div>
+
+<script>
+const questions = [
+    // E/I 维度 12题
+    {q:"1. 聚会结束后，你更倾向于？A 还想继续约下半场，越玩越嗨(E) B 只想立刻回家独处，恢复精力(I)",k1:"E",k2:"I"},
+    {q:"2. 认识新朋友时，你会？A 主动开启话题，快速熟络(E) B 等待对方先开口，保持观察(I)",k1:"E",k2:"I"},
+    {q:"3. 周末空闲，你更想？A 约朋友逛街/聚餐/看展(E) B 宅家追剧/看书/打游戏(I)",k1:"E",k2:"I"},
+    {q:"4. 有新想法时，你会？A 立刻找朋友分享吐槽(E) B 先自己琢磨清楚再说(I)",k1:"E",k2:"I"},
+    {q:"5. 遇到烦心事，你会？A 找人倾诉，说出来就好受(E) B 自己消化，不想麻烦别人(I)",k1:"E",k2:"I"},
+    {q:"6. 身处热闹场合（派对/团建），你会？A 主动融入，带动气氛(E) B 感到疲惫，想找角落安静(I)",k1:"E",k2:"I"},
+    {q:"7. 思考问题时，你习惯？A 边说边想，越聊思路越清晰(E) B 先在心里理清，再开口表达(I)",k1:"E",k2:"I"},
+    {q:"8. 你的社交圈更偏向？A 广泛多元，认识很多不同的人(E) B 小而精，只有几个深交好友(I)",k1:"E",k2:"I"},
+    {q:"9. 恢复精力的方式是？A 和人聊天/参加活动(E) B 一个人待着，什么都不做(I)",k1:"E",k2:"I"},
+    {q:"10. 被邀请参加陌生聚会，你会？A 很期待，想去认识新人(E) B 有点抗拒，怕尴尬无聊(I)",k1:"E",k2:"I"},
+    {q:"11. 表达观点时，你更习惯？A 当众发言，直接表达(E) B 私下沟通，慢慢说(I)",k1:"E",k2:"I"},
+    {q:"12. 一天结束后，你更满足于？A 认识了新朋友，度过热闹的一天(E) B 完成了自己的事，享受安静(I)",k1:"E",k2:"I"},
+
+    // S/N 维度 12题
+    {q:"13. 接收信息时，你更关注？A 具体的事实、细节和数据(S) B 抽象的概念、联想和可能性(N)",k1:"S",k2:"N"},
+    {q:"14. 听故事时，你更在意？A 情节是否真实合理(S) B 背后的隐喻和情感共鸣(N)",k1:"S",k2:"N"},
+    {q:"15. 学习新知识，你更喜欢？A 看实操步骤、案例演示(S) B 先理解底层原理、框架逻辑(N)",k1:"S",k2:"N"},
+    {q:"16. 说话时，你更倾向于？A 直白描述，就事论事(S) B 善用比喻，富有画面感(N)",k1:"S",k2:"N"},
+    {q:"17. 规划未来，你更偏向？A 制定短期目标，一步步落实(S) B 畅想长远愿景，关注大方向(N)",k1:"S",k2:"N"},
+    {q:"18. 做判断时，你更相信？A 亲眼所见、亲身经历(S) B 直觉预感、第六感(N)",k1:"S",k2:"N"},
+    {q:"19. 看一张图片，你会先注意？A 颜色、形状、构图等细节(S) B 它引发的联想和情绪(N)",k1:"S",k2:"N"},
+    {q:"20. 解决问题时，你更擅长？A 套用过往经验，快速解决(S) B 跳出框架，寻找创新方案(N)",k1:"S",k2:"N"},
+    {q:"21. 聊天时，你更喜欢聊？A 生活琐事、美食旅行等日常(S) B 哲学、梦想、宇宙等宏大话题(N)",k1:"S",k2:"N"},
+    {q:"22. 面对新事物，你会？A 先观察它的实际用途(S) B 先思考它的潜在可能(N)",k1:"S",k2:"N"},
+    {q:"23. 阅读时，你更关注？A 文字描述的具体场景(S) B 文字背后的深层含义(N)",k1:"S",k2:"N"},
+    {q:"24. 你更擅长？A 处理具体、琐碎的事务(S) B 构思抽象、复杂的创意(N)",k1:"S",k2:"N"},
+
+    // T/F 维度 12题
+    {q:"25. 做决定时，你优先考虑？A 逻辑是否通顺、是否公平(T) B 他人感受、是否会造成伤害(F)",k1:"T",k2:"F"},
+    {q:"26. 朋友犯错时，你会？A 直接指出问题，理性分析(T) B 先安抚情绪，委婉提醒(F)",k1:"T",k2:"F"},
+    {q:"27. 吵架时，你更在意？A 谁对谁错，就事论事(T) B 对方的态度和语气，是否被在乎(F)",k1:"T",k2:"F"},
+    {q:"28. 评价他人，你更看重？A 能力强弱、做事效率(T) B 人品好坏、是否善良(F)",k1:"T",k2:"F"},
+    {q:"29. 安慰别人时，你会？A 给出解决方案，理性分析(T) B 共情陪伴，先让对方发泄情绪(F)",k1:"T",k2:"F"},
+    {q:"30. 职场中，你更倾向于？A 按规则办事，公平优先(T) B 维护人际关系，和睦优先(F)",k1:"T",k2:"F"},
+    {q:"31. 买东西时，你更看重？A 性价比、参数、实用性(T) B 颜值、喜好、是否心动(F)",k1:"T",k2:"F"},
+    {q:"32. 面对感情，你更偏向？A 理性分析利弊，权衡得失(T) B 跟随内心感觉，相信直觉(F)",k1:"T",k2:"F"},
+    {q:"33. 批评别人时，你会？A 直接犀利，不留情面(T) B 温和委婉，照顾对方面子(F)",k1:"T",k2:"F"},
+    {q:"34. 看到不公平的事，你会？A 理性分析前因后果(T) B 立刻共情，为弱者抱不平(F)",k1:"T",k2:"F"},
+    {q:"35. 做选择时，你更在意？A 是否符合逻辑和原则(T) B 是否让自己和他人舒服(F)",k1:"T",k2:"F"},
+    {q:"36. 你更欣赏哪种人？A 理智冷静、做事靠谱(T) B 温柔善良、共情力强(F)",k1:"T",k2:"F"},
+
+    // J/P 维度 12题
+    {q:"37. 做事时，你更习惯？A 提前制定详细计划，按部就班(J) B 灵活应变，走一步看一步(P)",k1:"J",k2:"P"},
+    {q:"38. 你的桌面/房间通常是？A 整洁有序，物品各归其位(J) B 随性摆放，方便随手取用(P)",k1:"J",k2:"P"},
+    {q:"39. 出门旅游，你会？A 做好详细攻略，定好行程(J) B 不做计划，到了当地再逛(P)",k1:"J",k2:"P"},
+    {q:"40. 面对截止日期，你会？A 提前完成，避免拖延(J) B 临近最后期限，高效赶工(P)",k1:"J",k2:"P"},
+    {q:"41. 你更喜欢的生活状态是？A 稳定可控，有规律可循(J) B 自由多变，充满新鲜感(P)",k1:"J",k2:"P"},
+    {q:"42. 做选择时，你会？A 尽快敲定，避免纠结(J) B 保留多种可能，慢慢考虑(P)",k1:"J",k2:"P"},
+    {q:"43. 收纳物品时，你会？A 分类整理，一目了然(J) B 随意堆放，方便拿取(P)",k1:"J",k2:"P"},
+    {q:"44. 计划被临时打乱，你会？A 感到烦躁，需要重新调整(J) B 欣然接受，顺势而为(P)",k1:"J",k2:"P"},
+    {q:"45. 你做事的节奏是？A 做完一件再开始下一件(J) B 多线并行，随时切换(P)",k1:"J",k2:"P"},
+    {q:"46. 你更倾向于？A 提前做好准备，有备无患(J) B 临场发挥，随机应变(P)",k1:"J",k2:"P"},
+    {q:"47. 周末安排，你会？A 提前规划好要做的事(J) B 睡到自然醒，想到什么做什么(P)",k1:"J",k2:"P"},
+    {q:"48. 你更欣赏？A 自律严谨、执行力强的人(J) B 随性洒脱、适应力强的人(P)",k1:"J",k2:"P"}
+];
+const typeInfo = {
+ISTJ:{name:"严谨实干物流师",desc:"稳重靠谱、专一深情，恋爱里默默付出，给足安全感。"},
+ISFJ:{name:"温柔守护奉献者",desc:"贴心细腻、超会疼人，把偏爱全都留给喜欢的人。"},
+INFJ:{name:"深度洞察咨询师",desc:"灵魂专一、宁缺毋滥，只谈双向奔赴的神仙恋爱。"},
+INTJ:{name:"高冷战略思想家",desc:"理智优秀、强强恋爱，欣赏上进又合拍的另一半。"},
+ISTP:{name:"机敏自由探险家",desc:"随性大方、不粘人，相处轻松自在超舒服。"},
+ISFP:{name:"浪漫温柔艺术家",desc:"满眼偏爱、仪式感满满，温柔到骨子里。"},
+INFP:{name:"纯粹治愈调停者",desc:"干净深情、向往真心，只想谈一辈子甜甜的爱。"},
+INTP:{name:"逻辑学霸思考者",desc:"慢热呆萌、三观契合最重要，长久安稳不花哨。"},
+ESTP:{name:"活力果敢行动派",desc:"主动会撩、浪漫热烈，恋爱氛围直接拉满。"},
+ESFP:{name:"元气快乐表演者",desc:"活泼甜宠、制造惊喜，跟你在一起永远不无聊。"},
+ENFP:{name:"脑洞浪漫竞选者",desc:"有趣走心、灵魂合拍，甜到心动停不下来。"},
+ENTP:{name:"聪明有趣辩论家",desc:"幽默会聊、脑洞互撞，谈恋爱又甜又好玩。"},
+ESTJ:{name:"干练威严管理者",desc:"负责靠谱、踏实顾家，一辈子稳稳宠你。"},
+ESFJ:{name:"亲和暖心执政官",desc:"体贴包容、温柔顾家，把爱情经营到极致。"},
+ENFJ:{name:"共情温柔教育家",desc:"宠人入骨、治愈满满，是顶配灵魂伴侣。"},
+ENTJ:{name:"霸气远见指挥官",desc:"强势担当、互相成就，给未来和满满的底气。"}
+};
+
+const cpMatch = {
+ISTJ:"💘最佳CP：ESFJ / ISFJ｜契合度92% 安稳长久、细水长流的神仙相守",
+ISFJ:"💘最佳CP：ESTJ / INFJ｜契合度95% 温柔被守护、偏爱只给你一人",
+INFJ:"💘最佳CP：ENTP / ENFJ｜契合度93% 灵魂共鸣、双向奔赴的精神恋爱",
+INTJ:"💘最佳CP：ENFP / INFJ｜契合度90% 理智配浪漫、脑洞互补超合拍",
+ISTP:"💘最佳CP：ESFJ / ISFP｜契合度89% 自由配温柔、轻松不压抑",
+ISFP:"💘最佳CP：ESTP / INFJ｜契合度94% 满眼偏爱、浪漫甜到心动",
+INFP:"💘最佳CP：ENFJ / INFJ｜契合度96% 互相治愈、纯粹深情一辈子",
+INTP:"💘最佳CP：ENTJ / ENFP｜契合度88% 话题不断、思维永远同频",
+ESTP:"💘最佳CP：ISFJ / ISFP｜契合度91% 热烈宠温柔、甜到冒泡",
+ESFP:"💘最佳CP：ISTJ / ESTJ｜契合度90% 活泼配稳重、互补走到老",
+ENFP:"💘最佳CP：INTJ / INFJ｜契合度95% 脑洞相撞、浪漫直接封神",
+ENTP:"💘最佳CP：INFJ / INFP｜契合度92% 有趣配深情、灵魂永远合拍",
+ESTJ:"💘最佳CP：ISFJ / ISTJ｜契合度93% 责任相配、安稳过日子",
+ESFJ:"💘最佳CP：ISTP / ISTJ｜契合度94% 温柔顾家、被稳稳疼爱一辈子",
+ENFJ:"💘最佳CP：INFP / ISFP｜契合度97% 宠上天、治愈余生所有温柔",
+ENTJ:"💘最佳CP：INTP / INFP｜契合度89% 强者配温柔、互相成就共赢"
+};
+
+//渲染题目
+let html = "";
+questions.forEach((item,i)=>{
+html += `
+<div class="q-card">
+    <div class="q-text">${item.q}</div>
+    <div class="opt-item">
+        <input type="radio" name="q${i}" value="${item.k1}" id="a${i}">
+        <label for="a${i}">选A</label>
+    </div>
+    <div class="opt-item">
+        <input type="radio" name="q${i}" value="${item.k2}" id="b${i}">
+        <label for="b${i}">选B</label>
+    </div>
+</div>
+`;
+});
+document.getElementById("testContainer").innerHTML = html;
+
+//滚动进度条
+window.onscroll = () => {
+    let s = document.documentElement.scrollTop || document.body.scrollTop;
+    let h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    let p = (s/h)*100;
+    document.getElementById("progressBar").style.width = p+"%";
+};
+
+//计算结果
+function calcMBTI(){
+let sc={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+for(let i=0;i<36;i++){
+    let sel = document.querySelector(`input[name="q${i}"]:checked`);
+    if(!sel){
+        alert(`第${i+1}题还没选哦～凭直觉选完才能看CP缘分💗`);
+        return;
+    }
+    sc[sel.value]++;
+}
+let m1=sc.E>=sc.I?"E":"I";
+let m2=sc.S>=sc.N?"S":"N";
+let m3=sc.T>=sc.F?"T":"F";
+let m4=sc.J>=sc.P?"J":"P";
+let res = m1+m2+m3+m4;
+
+document.getElementById("mbtiType").innerText = res + " · " + typeInfo[res].name;
+document.getElementById("cpInfo").innerText = cpMatch[res];
+document.getElementById("mbtiDesc").innerText = typeInfo[res].desc;
+document.getElementById("resultBox").style.display = "block";
+document.getElementById("resultBox").scrollIntoView({behavior:"smooth"});
+}
+</script>
+</body>
+</html>
